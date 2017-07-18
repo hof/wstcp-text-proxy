@@ -30,7 +30,6 @@ import org.red5.net.websocket.model.MessageType;
 import org.red5.net.websocket.model.Packet;
 import org.red5.net.websocket.model.WSMessage;
 import org.red5.net.websocket.util.IdGenerator;
-import org.red5.server.plugin.PluginRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,13 +100,6 @@ public class WebSocketConnection {
     public void receive(WSMessage message) {
         log.trace("receive message");
         if (isConnected()) {
-            WebSocketScopeManager manager = (WebSocketScopeManager) session.getAttribute(Constants.MANAGER);
-            if (manager == null) {
-                WebSocketPlugin plugin = (WebSocketPlugin) PluginRegistry.getPlugin("WebSocketPlugin");
-                manager = plugin.getManager(path);
-            }
-            WebSocketScope scope = manager.getScope(path);
-            scope.onMessage(message);
         } else {
             log.warn("Not connected");
         }

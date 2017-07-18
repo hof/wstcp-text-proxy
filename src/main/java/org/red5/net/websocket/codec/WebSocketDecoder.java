@@ -36,14 +36,10 @@ import org.bouncycastle.util.encoders.Base64;
 import org.red5.net.websocket.Constants;
 import org.red5.net.websocket.WebSocketConnection;
 import org.red5.net.websocket.WebSocketException;
-import org.red5.net.websocket.WebSocketPlugin;
-import org.red5.net.websocket.WebSocketScopeManager;
-import org.red5.net.websocket.listener.IWebSocketDataListener;
 import org.red5.net.websocket.model.ConnectionType;
 import org.red5.net.websocket.model.HandshakeResponse;
 import org.red5.net.websocket.model.MessageType;
 import org.red5.net.websocket.model.WSMessage;
-import org.red5.server.plugin.PluginRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -202,12 +198,7 @@ public class WebSocketDecoder extends CumulativeProtocolDecoder {
                 }
                 // get the path 
                 String path = conn.getPath();
-                // get the scope manager
-                WebSocketScopeManager manager = (WebSocketScopeManager) session.getAttribute(Constants.MANAGER);
-                if (manager == null) {
-                    WebSocketPlugin plugin = (WebSocketPlugin) PluginRegistry.getPlugin("WebSocketPlugin");
-                    manager = plugin.getManager(path);
-                }
+
                 // TODO add handling for extensions
 
                 // TODO expand handling for protocols requested by the client, instead of just echoing back
@@ -218,24 +209,11 @@ public class WebSocketDecoder extends CumulativeProtocolDecoder {
                     // add protocol to the connection
                     conn.setProtocol(protocol);
                     // TODO check listeners for "protocol" support
-                    Set<IWebSocketDataListener> listeners = manager.getScope(path).getListeners();
-                    for (IWebSocketDataListener listener : listeners) {
-                        if (listener.getProtocol().equals(protocol)) {
-                            //log.debug("Scope has listener support for the {} protocol", protocol);
-                            protocolSupported = true;
-                            break;
-                        }
-                    }
-                    log.debug("Scope listener does{} support the '{}' protocol", (protocolSupported ? "" : "n't"), protocol);
                 }
-                // store manager in the current session
-                session.setAttribute(Constants.MANAGER, manager);
                 // store connection in the current session
                 session.setAttribute(Constants.CONNECTION, conn);
                 // handshake is finished
                 conn.setConnected();
-                // add connection to the manager
-                manager.addConnection(conn);
                 // prepare response and write it to the directly to the session
                 HandshakeResponse wsResponse = buildHandshakeResponse(conn, (String) headers.get(Constants.WS_HEADER_KEY));
                 session.write(wsResponse);
@@ -290,41 +268,6 @@ public class WebSocketDecoder extends CumulativeProtocolDecoder {
                     String qs = requestPath.substring(ques).trim();
                     log.trace("Request querystring: {}", qs);
                     map.put(Constants.URI_QS_PARAMETERS, parseQuerystring(qs));
-                }
-                // get the manager
-                WebSocketPlugin plugin = (WebSocketPlugin) PluginRegistry.getPlugin("WebSocketPlugin");
-                if (plugin != null) {
-                    log.trace("Found plugin");
-                    WebSocketScopeManager manager = plugin.getManager(path);
-                    log.trace("Manager was found? : {}", manager);
-                    // only check that the application is enabled, not the room or sub levels
-                    if (manager != null && manager.isEnabled(path)) {
-                        log.trace("Path enabled: {}", path);
-                    } else {
-                        // invalid scope or its application is not enabled, send disconnect message
-                        HandshakeResponse errResponse = build400Response(conn);
-                        WriteFuture future = conn.getSession().write(errResponse);
-                        future.addListener(new IoFutureListener<IoFuture>() {
-                            @Override
-                            public void operationComplete(IoFuture future) {
-                                // close connection
-                                future.getSession().closeOnFlush();
-                            }
-                        });
-                        throw new WebSocketException("Handshake failed, path not enabled");
-                    }
-                } else {
-                    log.warn("Plugin lookup failed");
-                    HandshakeResponse errResponse = build400Response(conn);
-                    WriteFuture future = conn.getSession().write(errResponse);
-                    future.addListener(new IoFutureListener<IoFuture>() {
-                        @Override
-                        public void operationComplete(IoFuture future) {
-                            // close connection
-                            future.getSession().closeOnFlush();
-                        }
-                    });
-                    throw new WebSocketException("Handshake failed, missing plugin");
                 }
             } else if (request[i].contains(Constants.WS_HEADER_KEY)) {
                 map.put(Constants.WS_HEADER_KEY, extractHeaderValue(request[i]));
