@@ -1,5 +1,7 @@
 package org.hofcom.wsproxy;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.executor.ExecutorFilter;
@@ -12,11 +14,14 @@ import java.net.InetSocketAddress;
 
 public class ProxyMain {
 
+    public static final Logger LOGGER = LogManager.getLogger(ProxyMain.class);
+
     private WebsocketHandler wsHandler = null;
 
     private NioSocketAcceptor wsAcceptor =  null;
 
     private void startWebsocketServer() {
+        LOGGER.info("Starting wstcp-text-proxy");
 
         // client handler
         wsHandler = new WebsocketHandler();
