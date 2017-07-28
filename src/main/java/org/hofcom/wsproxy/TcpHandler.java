@@ -22,6 +22,11 @@ public class TcpHandler extends IoHandlerAdapter {
 
         IoSession wsSession = (IoSession) session.getAttribute("WS");
         if (wsSession != null) {
+
+            // remove links
+            session.removeAttribute("WS");
+            wsSession.removeAttribute("TCP");
+
             wsSession.closeNow();
         }
     }
@@ -48,6 +53,5 @@ public class TcpHandler extends IoHandlerAdapter {
     @Override
     public void sessionIdle(IoSession session, IdleStatus status) throws Exception {
         session.write("{\"class\":\"ping\"}");
-        // System.out.println("TCP < ping");
     }
 }

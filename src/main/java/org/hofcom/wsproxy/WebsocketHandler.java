@@ -55,6 +55,11 @@ public class WebsocketHandler extends IoHandlerAdapter {
 
         IoSession tcpSession = (IoSession)session.getAttribute("TCP");
         if (tcpSession != null) {
+
+            // remove links
+            session.removeAttribute("TCP");
+            tcpSession.removeAttribute("WS");
+
             tcpSession.closeNow();
         }
     }
