@@ -1,5 +1,7 @@
 package org.hofcom.wsproxy;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -8,9 +10,13 @@ import org.red5.net.websocket.model.Packet;
 
 public class TcpHandler extends IoHandlerAdapter {
 
+    public static final Logger LOGGER = LogManager.getLogger(TcpHandler.class);
+
+    public static final Logger DATA_LOGGER = LogManager.getLogger("data");
+
     @Override
     public void sessionCreated(IoSession session) throws Exception {
-        System.out.println("TCP-sessionCreated");
+        LOGGER.debug("TCP-sessionCreated");
 
         /* set idle time */
         session.getConfig().setIdleTime(IdleStatus.WRITER_IDLE, 5);
@@ -18,7 +24,7 @@ public class TcpHandler extends IoHandlerAdapter {
 
     @Override
     public void sessionClosed(IoSession session) throws Exception {
-        System.out.println("TCP-sessionClosed");
+        LOGGER.debug("TCP-sessionClosed");
 
         IoSession wsSession = (IoSession) session.getAttribute("WS");
         if (wsSession != null) {
@@ -35,7 +41,7 @@ public class TcpHandler extends IoHandlerAdapter {
     public void messageReceived(IoSession session, Object message) throws Exception {
         String msg = message.toString();
         if (!msg.startsWith("{\"class\":\"rate\"")) {
-            System.out.println("TCP > " + message.toString());
+            DATA_LOGGER.info("TCP > " + message.toString());
         }
 
         IoSession wsSession = (IoSession)session.getAttribute("WS");
@@ -47,7 +53,7 @@ public class TcpHandler extends IoHandlerAdapter {
 
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-        System.out.println("TCP-Exception");
+        LOGGER.error("TCP-Exception", cause);
     }
 
     @Override

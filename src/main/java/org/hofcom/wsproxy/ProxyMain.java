@@ -29,9 +29,7 @@ public class ProxyMain {
         // acceptor
         wsAcceptor = new NioSocketAcceptor();
         wsAcceptor.setHandler(wsHandler);
-
-        SocketSessionConfig config = wsAcceptor.getSessionConfig();
-        config.setReuseAddress(true);
+        wsAcceptor.setReuseAddress(true);
 
         // protocol filter
         IoFilter codecFilter = new ProtocolCodecFilter(new WebSocketCodecFactory());
@@ -49,7 +47,7 @@ public class ProxyMain {
                 wsAcceptor.bind(new InetSocketAddress(bindip, 5001));
             }
         } catch (IOException e) {
-            System.out.println("Unable to bind");
+            LOGGER.error("Unable to bind", e);
         }
     }
 

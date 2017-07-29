@@ -1,5 +1,7 @@
 package org.hofcom.wsproxy;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandlerAdapter;
@@ -17,14 +19,18 @@ import java.net.InetSocketAddress;
  */
 public class WebsocketHandler extends IoHandlerAdapter {
 
+    public static final Logger LOGGER = LogManager.getLogger(WebsocketHandler.class);
+
+    public static final Logger DATA_LOGGER = LogManager.getLogger("data");
+
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-        System.out.println("Exception: " + cause.toString());
+        LOGGER.error("Exception: ", cause);
     }
 
     @Override
     public void sessionCreated(IoSession session) throws Exception {
-        System.out.println("sessionCreated");
+        LOGGER.debug("sessionCreated");
 
         // connector of TCP session
         NioSocketConnector connector = new NioSocketConnector();
@@ -41,7 +47,7 @@ public class WebsocketHandler extends IoHandlerAdapter {
             cf = connector.connect(new InetSocketAddress("10.86.179.43", 5000));
             cf.await();
         } catch (RuntimeIoException ioe) {
-            System.out.println("Error connecting to tcp " + ioe.toString());
+            LOGGER.error("Error connecting to tcp ", ioe);
         }
 
         // link the sessions
@@ -51,7 +57,7 @@ public class WebsocketHandler extends IoHandlerAdapter {
                     
     @Override
     public void sessionClosed(IoSession session) throws Exception {
-        System.out.println("sessionClosed");
+        LOGGER.debug("sessionClosed");
 
         IoSession tcpSession = (IoSession)session.getAttribute("TCP");
         if (tcpSession != null) {
@@ -68,7 +74,7 @@ public class WebsocketHandler extends IoHandlerAdapter {
     public void messageReceived(IoSession session, Object message) throws Exception {
         if (message instanceof WSMessage) {
             WSMessage wsm = (WSMessage)message;
-            System.out.println("ws < " + wsm.getMessageAsString());
+            DATA_LOGGER.info("ws < " + wsm.getMessageAsString());
 
             // send to tcp connection
             IoSession tcpSession = (IoSession)session.getAttribute("TCP");
