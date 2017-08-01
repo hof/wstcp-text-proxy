@@ -23,6 +23,16 @@ public class WebsocketHandler extends IoHandlerAdapter {
 
     public static final Logger DATA_LOGGER = LogManager.getLogger("data");
 
+    private NioSocketConnector connector = new NioSocketConnector();
+
+    private TcpHandler tcpHandler = new TcpHandler();
+
+    public WebsocketHandler() {
+        connector.setHandler(tcpHandler);
+        connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new TcpCodecFactory()));
+        connector.getFilterChain().addLast("threadpool", new ExecutorFilter(10));
+    }
+
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
         LOGGER.error("Exception: ", cause);
@@ -32,18 +42,9 @@ public class WebsocketHandler extends IoHandlerAdapter {
     public void sessionCreated(IoSession session) throws Exception {
         LOGGER.debug("sessionCreated");
 
-        // connector of TCP session
-        NioSocketConnector connector = new NioSocketConnector();
-        connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new TcpCodecFactory()));
-        connector.getFilterChain().addLast("threadpool", new ExecutorFilter(1));
-
-        // handler the TCP session
-        TcpHandler tcpHandler = new TcpHandler();
-
         // connect and wait
         ConnectFuture cf = null;
         try {
-            connector.setHandler(tcpHandler);
             cf = connector.connect(new InetSocketAddress("10.86.179.43", 5000));
             cf.await();
         } catch (RuntimeIoException ioe) {
@@ -54,7 +55,7 @@ public class WebsocketHandler extends IoHandlerAdapter {
         cf.getSession().setAttribute("WS", session);
         session.setAttribute("TCP", cf.getSession());
     }
-                    
+
     @Override
     public void sessionClosed(IoSession session) throws Exception {
         LOGGER.debug("sessionClosed");
