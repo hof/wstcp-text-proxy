@@ -40,7 +40,7 @@ public class WebsocketHandler extends IoHandlerAdapter {
 
     @Override
     public void sessionCreated(IoSession session) throws Exception {
-        LOGGER.debug("sessionCreated");
+        LOGGER.info("sessionCreated");
 
         // connect and wait
         ConnectFuture cf = null;
@@ -58,7 +58,7 @@ public class WebsocketHandler extends IoHandlerAdapter {
 
     @Override
     public void sessionClosed(IoSession session) throws Exception {
-        LOGGER.debug("sessionClosed");
+        LOGGER.info("sessionClosed");
 
         IoSession tcpSession = (IoSession)session.getAttribute("TCP");
         if (tcpSession != null) {

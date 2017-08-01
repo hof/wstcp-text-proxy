@@ -16,7 +16,7 @@ public class TcpHandler extends IoHandlerAdapter {
 
     @Override
     public void sessionCreated(IoSession session) throws Exception {
-        LOGGER.debug("TCP-sessionCreated");
+        LOGGER.info("TCP-sessionCreated");
 
         /* set idle time */
         session.getConfig().setIdleTime(IdleStatus.WRITER_IDLE, 5);
@@ -24,7 +24,7 @@ public class TcpHandler extends IoHandlerAdapter {
 
     @Override
     public void sessionClosed(IoSession session) throws Exception {
-        LOGGER.debug("TCP-sessionClosed");
+        LOGGER.info("TCP-sessionClosed");
 
         IoSession wsSession = (IoSession) session.getAttribute("WS");
         if (wsSession != null) {
