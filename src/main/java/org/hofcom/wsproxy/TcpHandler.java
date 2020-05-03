@@ -14,6 +14,15 @@ public class TcpHandler extends IoHandlerAdapter {
 
     public static final Logger DATA_LOGGER = LogManager.getLogger("data");
 
+    private boolean logData;
+
+    private String pingData;
+
+    public TcpHandler(boolean logData, String pingData) {
+        this.logData = logData;
+        this.pingData = pingData;
+    }
+
     @Override
     public void sessionCreated(IoSession session) throws Exception {
         LOGGER.info("TCP-sessionCreated");
@@ -32,7 +41,6 @@ public class TcpHandler extends IoHandlerAdapter {
             // remove links
             session.removeAttribute("WS");
             wsSession.removeAttribute("TCP");
-
             wsSession.closeNow();
         }
     }
@@ -40,7 +48,8 @@ public class TcpHandler extends IoHandlerAdapter {
     @Override
     public void messageReceived(IoSession session, Object message) throws Exception {
         String msg = message.toString();
-        if (!msg.startsWith("{\"class\":\"rate\"")) {
+
+        if (logData) {
             DATA_LOGGER.info("TCP > " + message.toString());
         }
 
@@ -58,6 +67,6 @@ public class TcpHandler extends IoHandlerAdapter {
 
     @Override
     public void sessionIdle(IoSession session, IdleStatus status) throws Exception {
-        session.write("{\"class\":\"ping\"}");
+        session.write(pingData);
     }
 }

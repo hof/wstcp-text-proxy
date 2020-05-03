@@ -1,0 +1,9 @@
+{
+    "name": "java",
+    "image": "maven:3-jdk-8",
+    "extensions": [
+        "vscjava.vscode-java-pack",
+        "mutantdino.resourcemonitor",
+        "shardulm94.trailing-spaces"
+    ]
+}

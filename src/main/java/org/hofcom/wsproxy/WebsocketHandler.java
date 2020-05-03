@@ -15,7 +15,7 @@ import java.net.InetSocketAddress;
 
 /**
  * IoHandler for events on the websocket connection
- * 
+ *
  */
 public class WebsocketHandler extends IoHandlerAdapter {
 
@@ -25,10 +25,18 @@ public class WebsocketHandler extends IoHandlerAdapter {
 
     private NioSocketConnector connector = new NioSocketConnector();
 
-    private TcpHandler tcpHandler = new TcpHandler();
+    private String host;
 
-    public WebsocketHandler() {
-        connector.setHandler(tcpHandler);
+    private Integer port;
+
+    private boolean logData;
+
+    public WebsocketHandler(String host, Integer port, boolean logData, TcpHandler handler) {
+        this.host = host;
+        this.port = port;
+        this.logData = logData;
+
+        connector.setHandler(handler);
         connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new TcpCodecFactory()));
         connector.getFilterChain().addLast("threadpool", new ExecutorFilter(10));
     }
@@ -45,7 +53,7 @@ public class WebsocketHandler extends IoHandlerAdapter {
         // connect and wait
         ConnectFuture cf = null;
         try {
-            cf = connector.connect(new InetSocketAddress("10.86.179.43", 5000));
+            cf = connector.connect(new InetSocketAddress(host, port));
             cf.await();
         } catch (RuntimeIoException ioe) {
             LOGGER.error("Error connecting to tcp ", ioe);
@@ -66,7 +74,6 @@ public class WebsocketHandler extends IoHandlerAdapter {
             // remove links
             session.removeAttribute("TCP");
             tcpSession.removeAttribute("WS");
-
             tcpSession.closeNow();
         }
     }
@@ -75,7 +82,10 @@ public class WebsocketHandler extends IoHandlerAdapter {
     public void messageReceived(IoSession session, Object message) throws Exception {
         if (message instanceof WSMessage) {
             WSMessage wsm = (WSMessage)message;
-            DATA_LOGGER.info("ws < " + wsm.getMessageAsString());
+
+            if (logData) {
+                DATA_LOGGER.info("ws < " + wsm.getMessageAsString());
+            }
 
             // send to tcp connection
             IoSession tcpSession = (IoSession)session.getAttribute("TCP");
