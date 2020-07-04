@@ -41,7 +41,7 @@ public class ProxyMain {
     @Parameter(names = {"--bind-ip","-ip"}, description = "IP address to listen on")
     private String bindip = "0.0.0.0";
 
-    @Parameter(names = {"--bind-port","-p"}, description = "IP port to listen on")
+    @Parameter(names = {"--bind-port","-pt"}, description = "IP port to listen on")
     private Integer bindport = 5002;
 
     @Parameter(names = {"--forward-host","-fh"}, description = "TCP hostname/IP to forward to")
@@ -53,7 +53,7 @@ public class ProxyMain {
     @Parameter(names = {"--log","-l"}, description = "Log the data")
     private boolean logData = false;
 
-    @Parameter(names = {"--ping","-p"}, description = "Data to ping inactive TCP connection with")
+    @Parameter(names = {"--ping","-pg"}, description = "Data to ping inactive TCP connection with")
     private String pingData = "{\"class\":\"ping\"}";
 
     private void startWebsocketServer() {
