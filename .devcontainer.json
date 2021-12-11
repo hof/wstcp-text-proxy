@@ -1,6 +1,6 @@
 {
     "name": "java",
-    "image": "maven:3-jdk-8",
+    "image": "maven:3-jdk-11",
     "extensions": [
         "vscjava.vscode-java-pack",
         "mutantdino.resourcemonitor",
