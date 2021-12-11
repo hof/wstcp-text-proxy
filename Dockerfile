@@ -7,6 +7,6 @@ RUN mvn install
 FROM openjdk:8
 
 WORKDIR /app
-COPY --from=builder /workspace/target/wstcp-text-proxy-1.1.1-dist.jar /app
+COPY --from=builder /workspace/target/wstcp-text-proxy-2.0.0-dist.jar /app
 
-CMD ["java", "-jar", "wstcp-text-proxy-1.1.1-dist.jar"]
+CMD ["java", "-jar", "wstcp-text-proxy-2.0.0-dist.jar"]
