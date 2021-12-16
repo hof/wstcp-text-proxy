@@ -4,13 +4,13 @@
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
-        <RollingFile name="main" filePattern="wsproxy-%d{yyyy-MM-dd}.log.gz">
+        <RollingFile name="main" filePattern="logs/wsproxy-%d{yyyy-MM-dd}.log.gz" fileName="logs/wsproxy.log">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy/>
             </Policies>
         </RollingFile>
-        <RollingFile name="data" filePattern="wsdata-%d{yyyy-MM-dd}.log.gz">
+        <RollingFile name="data" filePattern="logs/wsdata-%d{yyyy-MM-dd}.log.gz" fileName="logs/wsdata.log">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %msg%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy/>
